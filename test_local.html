@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Lokaler Test ESP32</title>
+</head>
+<body>
+<button id="button01">Test</button>
+<b>Status:</b> <a id="status">....</a>
+
+<script>
+    let button = document.getElementById("button01");
+    let status = document.getElementById("status");
+
+    function checkConnection(){
+        fetch("http://192.168.4.1/status")
+            .then(response => response.text())
+            .then(data => {status.innerText = data})
+            .catch(error => {status.innerText = "Fehler"});
+    }
+
+    button.onclick = () => {
+        fetch('http://192.168.4.1/upload', {
+            method: 'POST',
+            body: "audio=2"
+        })
+            .then(response => response.text())
+            .then(data => console.log(data));
+    };
+
+
+    setInterval(checkConnection, 5000);
+
+</script>
+</body>
+</html>

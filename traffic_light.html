@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ampel</title>
+</head>
+
+<style>
+    button{
+        padding: 100px;
+        margin: 10px;
+        font-size: 20px;
+        color: #ffffff;
+    }
+
+    #greenButton{
+        background-color: #3A7734;
+    }
+
+    #redButton{
+        background-color: #9C1A1C;
+    }
+</style>
+<body>
+
+<h1> Ampelschaltung</h1>
+
+<p id="currentColor">Aktuell</p>
+
+<button id="greenButton">Grün</button>
+<br>
+<button id="redButton">Rot</button>
+
+<script>
+    let greenButton = document.getElementById("greenButton");
+    let redButton = document.getElementById("redButton");
+    let currentColor = document.getElementById("currentColor");
+
+    greenButton.onclick = () => {
+        fetch("http://192.168.4.1/green", {
+            method: "POST",
+        })
+            .then(response => response.text())
+            .then(data => displayCurrentColor(data))
+    }
+
+    redButton.onclick = () => {
+        fetch("http://192.168.4.1/red", {
+            method: "POST",
+        })
+            .then(response => response.text())
+            .then(data => displayCurrentColor(data))
+    }
+
+    function displayCurrentColor(color){
+
+        if(color === "red"){
+            currentColor.innerText = "ROT";
+            currentColor.style.color = "red";
+        }
+        else if (color === "green"){
+            currentColor.innerText = "GRÜN";
+            currentColor.style.color = "green";
+        }
+        else{
+            currentColor.innerText = "Fehler";
+            currentColor.style.color = "blue";
+        }
+
+    }
+</script>
+
+</body>
+</html>
