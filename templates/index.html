@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AudioRecorder</title>
+</head>
+<style>
+    button {
+        padding: 20px;
+        font-size: 20px;
+        background-color: red;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0%{
+            transform: scale(1);
+        }
+
+        50%{
+            transform: scale(1.5);
+        }
+
+        100%{
+            transform: scale(1);
+        }
+    }
+</style>
+<body>
+<button id="recordingButton" onclick="clickRecord()">Los</button>
+
+<audio id="audioClip" controls>
+    <source type="audio/ogg" src="">
+
+</audio>
+</body>
+<script>
+
+    let isRecording = true;
+    let mediaRecorder;
+    let chunks = [];
+    let audioClip = document.getElementById('audioClip');
+
+    //animation
+    document.getElementById("recordingButton").style.animationPlayState = "paused";
+
+    function clickRecord() {
+
+        if(isRecording) {
+            initRecorder();
+            document.getElementById("recordingButton").style.backgroundColor = "green";
+            document.getElementById("recordingButton").style.animationPlayState = "running";
+            startRecording();
+        }
+        else{
+            document.getElementById("recordingButton").style.backgroundColor = "red";
+            document.getElementById("recordingButton").style.animationPlayState = "paused";
+            stopRecording();
+        }
+
+        isRecording = !isRecording;
+    }
+
+
+    function startRecording(){
+        isRecording = true;
+    }
+
+    function stopRecording(){
+        isRecording = false;
+        mediaRecorder.stop();
+
+    }
+
+    function initRecorder(){
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia(
+                {
+                    audio: true,
+                })
+
+                .then(stream =>{
+                    mediaRecorder = new MediaRecorder(stream, { mimeType: "audio/mp4" });
+
+                    mediaRecorder.ondataavailable = (e) => {
+                        chunks.push(e.data);
+                    }
+
+
+                    mediaRecorder.onstop = () => {
+                        const blob = new Blob(chunks, { type: "audio/mp4" });
+                        chunks = [];
+                        let url = window.URL.createObjectURL(blob);
+                        audioClip.src = url;
+                        console.log("url " + url);
+                        sendData(blob);
+                        console.log(blob);
+                    };
+
+                    mediaRecorder.start();
+                })
+
+                .catch((err) => {
+                    console.error(`The following getUserMedia error occurred: ${err}`);
+                });
+        }
+    }
+
+    function sendData(blob){
+
+        const formData = new FormData();
+        formData.append("file", blob, "aufnahme.mp4");
+
+        fetch("http://192.168.4.1/upload", {
+            method: 'POST',
+            body: formData
+        })
+
+            .then(response => response.text())
+            .then(data => console.log(data))
+
+            .catch(err => {
+                console.error("Fetch-Fehler:", err);
+            });
+
+
+        chunks = [];
+    }
+</script>
+</html>
