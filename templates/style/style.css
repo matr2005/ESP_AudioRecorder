@@ -1,6 +1,16 @@
 button{
-    color: red;
     font-size: 20px;
     padding: 20px;
     margin-right: 10px;
+    border-radius: 10px;
+}
+
+.button-off{
+    color: #444444;
+    background-color: #aaaaaa;
+}
+
+.button-on{
+    color: #000000;
+    background-color: #e39a12;
 }

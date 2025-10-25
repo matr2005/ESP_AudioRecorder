@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Straßenlaterne mobile Version</title>
+
+    <style>
+        button{
+            font-size: 20px;
+            padding: 20px;
+            margin-right: 10px;
+            border-radius: 10px;
+        }
+
+        .button-off{
+            color: #444444;
+            background-color: #aaaaaa;
+        }
+
+        .button-on{
+            color: #000000;
+            background-color: #e39a12;
+        }
+    </style>
+</head>
+<body onload="createButton()">
+<h1>Straßenlaternen</h1>
+<div id="container"></div>
+
+
+<script>
+    function sendData(address){
+
+        fetch("http://192.168.4.1/lights", {
+            method: "POST",
+            headers: {
+                "Content-Type": "text/plain"
+            },
+            body: address
+        })
+            .then(response => response.text())
+            .then(data => {console.log(data);})
+            .catch(err => console.log(err));
+
+    }
+</script>
+
+<script>
+
+    let IDs = [12,10];
+
+
+    let container = document.getElementById("container");
+
+    function createButton(){
+        for(let i = 0; i < IDs.length; i++) {
+            let button = document.createElement("button");
+            button.textContent = "Lampe " + IDs[i];
+            button.addEventListener("click", function (){
+                clickButton(button, IDs[i]);
+            })
+            button.setAttribute("isOn", "false");
+            button.classList.add("button-off");
+
+            container.appendChild(button);
+        }
+
+        function clickButton(element, id){
+
+            if(element.getAttribute("isOn") === "false" && element.classList.contains("button-off")){
+                element.classList.remove("button-off");
+                element.classList.add("button-on");
+                element.setAttribute("isOn", "true");
+            }
+            else{
+                element.classList.remove("button-on");
+                element.classList.add("button-off");
+                element.setAttribute("isOn", "false");
+            }
+
+            sendData(id);
+        }
+    }
+</script>
+</body>
+</html>
